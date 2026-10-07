@@ -1,0 +1,553 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14080d">
+<title>Un rendez-vous, Laura</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#14080d; --bg2:#1f0d15; --ink:#f6ece3; --muted:#b9a39a;
+  --gold:#d9b27c; --gold2:#f0d3a5; --rose:#c2456b; --wine:#6d1a36;
+  --card:rgba(255,244,235,.05); --line:rgba(217,178,124,.28);
+  --serif:'Cormorant Garamond','Georgia',serif; --sans:'Manrope',system-ui,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{
+  background:radial-gradient(120% 90% at 20% 0%,#3a1022 0%,var(--bg) 55%) fixed;
+  color:var(--ink);font-family:var(--sans);overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+/* grão sutil e pétalas */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.06;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");}
+#petals{position:fixed;inset:0;pointer-events:none;z-index:0}
+main{position:relative;z-index:1;min-height:100dvh;display:grid;place-items:center;padding:max(24px,env(safe-area-inset-top)) 18px max(24px,env(safe-area-inset-bottom))}
+.screen{display:none;width:100%;max-width:720px;text-align:center;animation:enter .8s cubic-bezier(.2,.8,.2,1) both}
+.screen.active{display:block}
+@keyframes enter{from{opacity:0;transform:translateY(18px) scale(.985);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+
+.eyebrow{font-size:.72rem;letter-spacing:.34em;text-transform:uppercase;color:var(--gold);margin:0 0 18px}
+h1,h2{font-family:var(--serif);font-weight:400;margin:0;line-height:1.05}
+h1{font-size:clamp(2.6rem,9vw,4.8rem)}
+h2{font-size:clamp(2rem,6.5vw,3.2rem)}
+h1 em,h2 em{color:var(--gold2);font-style:italic}
+.rule{width:64px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:26px auto}
+.fr{font-family:var(--serif);font-style:italic;color:var(--gold2);font-size:1.18rem;margin:6px 0}
+.fr small{display:block;font-family:var(--sans);font-style:normal;color:var(--muted);font-size:.74rem;letter-spacing:.05em;margin-top:2px}
+.quote{font-family:var(--serif);font-style:italic;color:var(--muted);font-size:1.02rem;max-width:30em;margin:22px auto 0}
+.quote cite{display:block;font-style:normal;font-family:var(--sans);font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;margin-top:6px;color:var(--gold)}
+
+.btn{
+  font:600 .95rem var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--ink);
+  padding:16px 38px;border-radius:999px;border:1px solid var(--line);background:var(--card);
+  cursor:pointer;transition:transform .25s,box-shadow .25s,background .25s,opacity .25s;backdrop-filter:blur(8px);
+}
+.btn:hover{transform:translateY(-2px)}
+.btn.primary{background:linear-gradient(135deg,#e6c48f,#b98a52);color:#2a1118;border-color:transparent;box-shadow:0 10px 30px -8px rgba(217,178,124,.55)}
+.btn.primary:hover{box-shadow:0 16px 38px -8px rgba(217,178,124,.75)}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+.btn.ghost{color:var(--muted)}
+.row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:34px}
+#btnNo{position:relative;touch-action:none}
+#btnNo.fled{position:fixed;z-index:50;transition:left .22s cubic-bezier(.3,1.4,.5,1),top .22s cubic-bezier(.3,1.4,.5,1)}
+
+/* formulário de data */
+.fields{display:grid;gap:22px;margin:34px auto 0;max-width:460px;text-align:left}
+.field label{display:block;font-size:.72rem;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.pair{display:grid;grid-template-columns:1.4fr 1fr;gap:12px}
+.pair.t{grid-template-columns:1fr 1fr}
+select{
+  width:100%;appearance:none;-webkit-appearance:none;font:500 1.05rem var(--sans);color:var(--ink);
+  background:var(--card) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' fill='none' stroke='%23d9b27c' stroke-width='1.6'/></svg>") no-repeat right 16px center;
+  border:1px solid var(--line);border-radius:14px;padding:15px 40px 15px 16px;cursor:pointer;
+}
+select:focus,textarea:focus{outline:2px solid var(--gold);outline-offset:2px}
+select option{background:#24101a;color:var(--ink)}
+
+/* locais */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-top:30px}
+.place{
+  position:relative;border:1px solid var(--line);border-radius:20px;overflow:hidden;cursor:pointer;background:var(--card);
+  padding:0;color:var(--ink);font:inherit;text-align:left;transition:transform .3s,border-color .3s,box-shadow .3s;
+}
+.place:hover{transform:translateY(-4px)}
+.place .pic{height:118px;display:grid;place-items:center;font-size:3.2rem;background-size:cover;background-position:center;position:relative}
+.place .pic::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(20,8,13,.75))}
+.place .pic span{position:relative;z-index:1;filter:drop-shadow(0 4px 10px rgba(0,0,0,.45))}
+.place .name{padding:12px 14px 4px;font-family:var(--serif);font-size:1.25rem}
+.place .fr2{padding:0 14px 14px;font-size:.72rem;color:var(--muted);font-style:italic}
+.place[aria-pressed="true"]{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 18px 40px -14px rgba(217,178,124,.55)}
+.place[aria-pressed="true"]::before{content:"✓";position:absolute;top:10px;right:10px;z-index:2;width:26px;height:26px;border-radius:50%;
+  background:var(--gold);color:#2a1118;display:grid;place-items:center;font-weight:700;font-size:.85rem}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(10,3,6,.7);backdrop-filter:blur(6px);display:none;place-items:center;z-index:80;padding:18px}
+.modal.open{display:grid;animation:enter .35s both}
+.sheet{background:linear-gradient(160deg,#2a1220,#180911);border:1px solid var(--line);border-radius:24px;padding:28px;width:100%;max-width:440px;text-align:center}
+textarea{width:100%;min-height:120px;margin-top:18px;resize:vertical;font:500 1rem var(--sans);color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+
+/* toast */
+#toast{position:fixed;left:50%;top:max(18px,env(safe-area-inset-top));transform:translate(-50%,-140%);z-index:120;
+  background:#b3122f;color:#fff;font-weight:700;letter-spacing:.1em;font-size:.82rem;padding:14px 22px;border-radius:12px;
+  box-shadow:0 14px 40px rgba(179,18,47,.5);transition:transform .45s cubic-bezier(.2,1.2,.4,1);text-align:center;max-width:92vw}
+#toast.show{transform:translate(-50%,0)}
+
+.house{font-family:var(--serif);font-size:clamp(1.5rem,5vw,2rem);color:var(--gold2);margin:26px auto 0;max-width:20em;line-height:1.25}
+.summary{margin:28px auto 0;max-width:420px;border:1px solid var(--line);border-radius:20px;padding:6px 22px;background:var(--card);text-align:left}
+.summary div{display:flex;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--line)}
+.summary div:last-child{border:0}
+.summary b{font-weight:500;color:var(--gold);font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;padding-top:3px}
+.summary span{font-family:var(--serif);font-size:1.25rem;text-align:right}
+
+/* canal de logs */
+#logFab{position:fixed;right:14px;bottom:max(14px,env(safe-area-inset-bottom));z-index:90;width:44px;height:44px;border-radius:50%;
+  border:1px solid var(--line);background:rgba(20,8,13,.8);color:var(--gold);cursor:pointer;font-size:1rem;backdrop-filter:blur(8px)}
+#logPanel{position:fixed;right:14px;bottom:70px;z-index:90;width:min(420px,calc(100vw - 28px));max-height:55vh;display:none;flex-direction:column;
+  background:rgba(14,5,9,.95);border:1px solid var(--line);border-radius:16px;overflow:hidden;backdrop-filter:blur(10px)}
+#logPanel.open{display:flex}
+#logPanel header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+#logPanel header button{background:none;border:0;color:var(--muted);cursor:pointer;font:inherit;letter-spacing:.1em;margin-left:12px;text-transform:uppercase}
+#logBody{overflow:auto;padding:10px 14px;font:12px/1.55 ui-monospace,Consolas,monospace;color:#cdbfb6;margin:0;white-space:pre-wrap;word-break:break-word}
+/* player de música (canto inferior esquerdo) */
+#player{position:fixed;left:max(14px,env(safe-area-inset-left));bottom:max(14px,env(safe-area-inset-bottom));z-index:90;width:176px;perspective:700px}
+#player .card{
+  padding:12px 12px 10px;border-radius:24px;color:#fff;
+  background:linear-gradient(160deg,rgba(120,120,125,.78),rgba(40,40,44,.88));
+  border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  box-shadow:0 18px 40px -12px rgba(0,0,0,.7);
+  transform:rotateY(0) rotateX(0) rotateZ(0);transform-origin:left bottom;
+  transition:transform .55s cubic-bezier(.2,.9,.25,1.1);
+}
+#player:hover .card,#player:focus-within .card,#player.touch .card{transform:rotateY(-24deg) rotateX(9deg) rotateZ(-5deg) translateX(6px)}
+#player .cover{aspect-ratio:1;border-radius:12px;background:#050505 center/cover no-repeat;box-shadow:0 6px 16px rgba(0,0,0,.55)}
+#player .meta{margin:9px 2px 6px;line-height:1.25}
+#player .meta b{display:block;font:600 .8rem var(--sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#player .meta span{font-size:.7rem;color:rgba(255,255,255,.65)}
+#player .bar{height:4px;border-radius:4px;background:rgba(255,255,255,.28);overflow:hidden}
+#player .bar i{display:block;height:100%;width:0;background:#fff;border-radius:4px}
+#player .times{display:flex;justify-content:space-between;font-size:.62rem;color:rgba(255,255,255,.65);margin:4px 1px 2px;font-variant-numeric:tabular-nums}
+#player .ctrl{display:flex;justify-content:center;align-items:center;gap:22px;margin:2px 0 6px}
+#player .ctrl button{background:none;border:0;color:#fff;cursor:pointer;padding:4px;display:grid;place-items:center}
+#player .ctrl svg{width:20px;height:20px;fill:currentColor}
+#player .ctrl #pp svg{width:28px;height:28px}
+#player .vol{display:flex;align-items:center;gap:6px;font-size:.7rem;color:rgba(255,255,255,.7)}
+#player input[type=range]{flex:1;min-width:0;height:3px;accent-color:#fff}
+#player .hint{position:absolute;left:0;bottom:calc(100% + 8px);background:rgba(20,8,13,.92);border:1px solid var(--line);border-radius:10px;
+  padding:8px 10px;font-size:.7rem;width:max-content;max-width:calc(100vw - 28px);display:none}
+#player .hint.show{display:block}
+@media (max-width:480px){#player{width:150px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="petals"></canvas>
+<canvas id="confetti" style="position:fixed;inset:0;pointer-events:none;z-index:100"></canvas>
+
+<main>
+  <!-- 1 · convite -->
+  <section class="screen active" id="s1">
+    <p class="eyebrow">Pour Laura · de la part de Samuel</p>
+    <h1>Você aceita sair <em>comigo?</em></h1>
+    <div class="rule"></div>
+    <p class="fr">« Veux-tu sortir avec moi ? »<small>Você quer sair comigo?</small></p>
+    <p class="quote">“O coração tem razões que a própria razão desconhece.”<cite>Pascal</cite></p>
+    <div class="row">
+      <button class="btn primary" id="btnYes">Sim</button>
+      <button class="btn" id="btnNo">Não</button>
+    </div>
+  </section>
+
+  <!-- 2 · dia e hora -->
+  <section class="screen" id="s2">
+    <p class="eyebrow">Merci, Laura</p>
+    <h2>Obrigado por <em>aceitar</em></h2>
+    <p class="fr">« Merci d'avoir dit oui. »<small>Obrigado por ter dito sim.</small></p>
+    <div class="fields">
+      <div class="field">
+        <label for="selMonth">Qual dia você acha melhor?</label>
+        <div class="pair">
+          <select id="selMonth" aria-label="Mês"></select>
+          <select id="selDay" aria-label="Dia"></select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="selHour">Horário melhor</label>
+        <div class="pair t">
+          <select id="selHour" aria-label="Hora"></select>
+          <select id="selMin" aria-label="Minutos"></select>
+        </div>
+      </div>
+    </div>
+    <div class="row"><button class="btn primary" id="ok2">Ok</button></div>
+  </section>
+
+  <!-- 3 · local -->
+  <section class="screen" id="s3">
+    <p class="eyebrow">Le choix t'appartient</p>
+    <h2>Qual local você <em>deseja ir?</em></h2>
+    <p class="fr">« Où allons-nous ? »<small>Para onde vamos?</small></p>
+    <div class="grid" id="places"></div>
+    <div class="row"><button class="btn primary" id="ok3" disabled>Ok</button></div>
+  </section>
+
+  <!-- 4 · confirmação -->
+  <section class="screen" id="s4">
+    <p class="eyebrow">Dernière question</p>
+    <h2>Posso marcar <em>nosso date?</em></h2>
+    <div class="rule"></div>
+    <p class="fr">« On se fait un rendez-vous ? »<small>Marcamos o nosso encontro?</small></p>
+    <div class="row">
+      <button class="btn primary" id="yes4">Sim</button>
+      <button class="btn" id="no4">Não</button>
+    </div>
+  </section>
+
+  <!-- 5 · final -->
+  <section class="screen" id="s5">
+    <p class="eyebrow">C'est décidé</p>
+    <h2>À très <em>bientôt</em>, Laura</h2>
+    <p class="fr">« Les plus belles histoires commencent par un rendez-vous. »<small>As mais belas histórias começam com um encontro.</small></p>
+    <p class="house">Leve somente você,<br><em>e tudo por conta da casa!</em></p>
+    <p class="fr">« Apporte seulement toi-même, la maison offre tout ! »<small>Venha só você, a casa oferece tudo!</small></p>
+    <div class="summary" id="summary"></div>
+    <p class="quote">“Ser feliz sem motivo é a mais autêntica forma de felicidade.”<cite>Carlos Drummond de Andrade</cite></p>
+    <div class="row"><button class="btn ghost" id="dl">Baixar log</button></div>
+  </section>
+</main>
+
+<!-- modal sugestão -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mt">
+  <div class="sheet">
+    <h2 id="mt" style="font-size:2rem">Qual é a sua <em>sugestão?</em></h2>
+    <p class="fr" style="font-size:1rem">« Surprends-moi ! »<small>Surpreenda-me!</small></p>
+    <textarea id="suggestion" placeholder="Digite aqui o lugar que você gostaria…" maxlength="300"></textarea>
+    <div class="row" style="margin-top:22px">
+      <button class="btn ghost" id="mCancel">Voltar</button>
+      <button class="btn primary" id="mOk">Ok</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" role="alert">SELECIONE UMA RESPOSTA VÁLIDA</div>
+
+
+<div id="player" aria-label="Player de música">
+  <div class="hint" id="hint">Coloque o arquivo da música em <b>musica/vem-pra-minha-vida.mp3</b></div>
+  <div class="card">
+    <div class="cover" style="background-image:url('Imagens/icone%20da%20musica.jpg')"></div>
+    <div class="meta"><b>Vem pra minha vida</b><span>Henrique &amp; Juliano</span></div>
+    <div class="bar"><i id="pBar"></i></div>
+    <div class="times"><span id="pCur">0:53</span><span id="pLeft">–</span></div>
+    <div class="ctrl">
+      <button id="pBack" aria-label="Voltar ao início do trecho"><svg viewBox="0 0 24 24"><path d="M11 6v12L2 12zm11 0v12l-9-6z"/></svg></button>
+      <button id="pp" aria-label="Tocar ou pausar"><svg viewBox="0 0 24 24" id="ppIcon"><path d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg></button>
+      <button id="pMute" aria-label="Mudo"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/></svg></button>
+    </div>
+    <div class="vol">🔈<input type="range" id="pVol" min="0" max="1" step=".01" value=".5" aria-label="Volume"></div>
+  </div>
+</div>
+<audio id="audio" src="musica/vem-pra-minha-vida.mp3" preload="auto"></audio>
+
+<button id="logFab"aria-label="Abrir canal de logs" title="Canal de logs">☰</button>
+<aside id="logPanel" aria-label="Canal de logs">
+  <header><span>Canal de logs</span><span><button id="logDl">Baixar</button><button id="logClr">Limpar</button></span></header>
+  <pre id="logBody"></pre>
+</aside>
+
+<script>
+(() => {
+'use strict';
+const NOME_ELE = 'Samuel', NOME_ELA = 'Laura', ANO = 2026;
+const $ = s => document.querySelector(s);
+
+/* ============ CANAL DE LOGS ============ */
+const Log = (() => {
+  const KEY = 'date-laura-log', entries = [];
+  const SESSION = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  try { entries.push(...JSON.parse(localStorage.getItem(KEY) || '[]')); } catch {}
+  const body = $('#logBody');
+  const fmt = e => `[${e.t}] ${e.lvl.padEnd(5)} ${e.msg}${e.data ? ' ' + JSON.stringify(e.data) : ''}`;
+  const render = () => { body.textContent = entries.map(fmt).join('\n'); body.scrollTop = body.scrollHeight; };
+  const add = (lvl, msg, data) => {
+    const e = { t: new Date().toLocaleString('pt-BR'), lvl, msg, data };
+    entries.push(e);
+    try { localStorage.setItem(KEY, JSON.stringify(entries.slice(-300))); } catch {}
+    /* grava na pasta Logs do PC via servidor local (iniciar.bat) */
+    if (location.protocol.startsWith('http')) {
+      fetch('/log', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ session: SESSION, line: fmt(e) }), keepalive: true }).catch(() => {});
+    }
+    (console[lvl === 'ERROR' ? 'error' : lvl === 'WARN' ? 'warn' : 'log'])('%c[date-log]', 'color:#d9b27c', msg, data ?? '');
+    render();
+  };
+  const download = () => {
+    const blob = new Blob([entries.map(fmt).join('\n')], { type: 'text/plain;charset=utf-8' });
+    const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `log-date-${Date.now()}.txt` });
+    a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+  $('#logFab').onclick = () => $('#logPanel').classList.toggle('open');
+  $('#logDl').onclick = download;
+  $('#logClr').onclick = () => { entries.length = 0; try { localStorage.removeItem(KEY); } catch {} render(); };
+  render();
+  return { info: (m, d) => add('INFO', m, d), warn: (m, d) => add('WARN', m, d), error: (m, d) => add('ERROR', m, d), download };
+})();
+window.addEventListener('error', e => Log.error('Erro não tratado: ' + e.message));
+Log.info('Sessão iniciada', { ua: navigator.userAgent, tela: `${innerWidth}x${innerHeight}` });
+
+/* ============ ESTADO / NAVEGAÇÃO ============ */
+const state = { dia: null, hora: null, local: null, sugestao: null, tentativasNao: 0 };
+const go = id => {
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
+  Log.info('Tela: ' + id);
+};
+
+/* ============ TELA 1: botão "Não" que foge ============ */
+const btnNo = $('#btnNo'), btnYes = $('#btnYes');
+let slot = null;
+const FUGAS_MIN = 5;
+let lastFlee = 0;
+const flee = ev => {
+  ev && ev.preventDefault();
+  if (btnNo.hidden) return;
+  const now = Date.now();
+  if (now - lastFlee < 350) return; /* um toque dispara vários eventos; conta como uma fuga só */
+  lastFlee = now;
+  if (!btnNo.classList.contains('fled')) {
+    const r = btnNo.getBoundingClientRect();
+    slot = document.createElement('span'); slot.style.cssText = `display:inline-block;width:${r.width}px;height:${r.height}px`;
+    btnNo.after(slot);
+    btnNo.classList.add('fled');
+    btnNo.style.left = r.left + 'px'; btnNo.style.top = r.top + 'px';
+  }
+  const w = btnNo.offsetWidth, h = btnNo.offsetHeight, pad = 12, y = btnYes.getBoundingClientRect();
+  const cur = btnNo.getBoundingClientRect();
+  let x, t, n = 0;
+  do {
+    x = pad + Math.random() * (innerWidth - w - pad * 2);
+    t = pad + Math.random() * (innerHeight - h - pad * 2);
+    n++;
+  } while (n < 40 && (
+    (x < y.right + 16 && x + w > y.left - 16 && t < y.bottom + 16 && t + h > y.top - 16) ||
+    Math.hypot(x - cur.left, t - cur.top) < 140));
+  btnNo.style.left = x + 'px'; btnNo.style.top = t + 'px';
+  state.tentativasNao++;
+  Log.warn('Tentou apertar "Não" — o botão fugiu', { tentativa: state.tentativasNao });
+  if (state.tentativasNao >= FUGAS_MIN) {
+    setTimeout(() => {
+      btnNo.hidden = true; slot && slot.remove();
+      Log.info('Botão "Não" sumiu após ' + FUGAS_MIN + ' fugas');
+    }, 450);
+  }
+};
+['pointerenter', 'pointerdown', 'touchstart', 'mousedown'].forEach(e => btnNo.addEventListener(e, flee, { passive: false }));
+btnNo.addEventListener('click', flee);
+btnNo.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') flee(e); });
+btnYes.onclick = () => { Log.info('Respondeu SIM ao convite', { tentativasNao: state.tentativasNao }); go('s2'); };
+
+/* ============ TELA 2: dia e hora (2026) ============ */
+const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const SEMANA = ['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
+const selMonth = $('#selMonth'), selDay = $('#selDay'), selHour = $('#selHour'), selMin = $('#selMin');
+MESES.forEach((m, i) => selMonth.add(new Option(`${m} de ${ANO}`, i)));
+const fillDays = () => {
+  const m = +selMonth.value, prev = +selDay.value || 1, n = new Date(ANO, m + 1, 0).getDate();
+  selDay.innerHTML = '';
+  for (let d = 1; d <= n; d++) selDay.add(new Option(`${d} · ${SEMANA[new Date(ANO, m, d).getDay()]}`, d));
+  selDay.value = Math.min(prev, n);
+};
+for (let h = 0; h < 24; h++) selHour.add(new Option(String(h).padStart(2, '0') + 'h', h));
+['00','15','30','45'].forEach(m => selMin.add(new Option(m + ' min', m)));
+const hoje = new Date();
+selMonth.value = hoje.getFullYear() === ANO ? hoje.getMonth() : 0; fillDays();
+selDay.value = hoje.getFullYear() === ANO ? Math.min(hoje.getDate(), selDay.options.length) : 1;
+selHour.value = 19;
+selMonth.onchange = fillDays;
+$('#ok2').onclick = () => {
+  const dt = new Date(ANO, +selMonth.value, +selDay.value);
+  state.dia = `${SEMANA[dt.getDay()]}, ${selDay.value} de ${MESES[selMonth.value]} de ${ANO}`;
+  state.hora = `${String(selHour.value).padStart(2, '0')}:${selMin.value}`;
+  Log.info('Escolheu data e horário', { dia: state.dia, hora: state.hora });
+  go('s3');
+};
+
+/* ============ TELA 3: local ============ */
+/* Fotos: coloque arquivos em img/<id>.jpg (ex.: img/pizzaria.jpg) e elas substituem os emojis automaticamente. */
+const LOCAIS = [
+  { id: 'japones',    nome: 'Restaurante Japonês', emoji: '🍣', fr: 'Un dîner japonais',  g: ['#7a1f2b', '#2a0d14'] },
+  { id: 'pizzaria',   nome: 'Pizzaria',            emoji: '🍕', fr: 'Une pizza, chérie ?', g: ['#9a4b1a', '#2d130a'] },
+  { id: 'shopping',   nome: 'Shopping',            emoji: '🛍️', fr: 'Faire les boutiques', g: ['#5b2a6e', '#1c0c27'] },
+  { id: 'cinema',     nome: 'Cinema',              emoji: '🎬', fr: 'Une séance de ciné',  g: ['#1f3556', '#0b1424'] },
+  { id: 'circo',      nome: 'Circo',               emoji: '🎪', fr: 'Sous le chapiteau',   g: ['#a3202f', '#2a0a10'] },
+  { id: 'sorveteria', nome: 'Sorveteria',          emoji: '🍨', fr: 'Une glace à deux',    g: ['#b0577d', '#34121f'] },
+  { id: 'praca',      nome: 'Praça',               emoji: '🌳', fr: 'Une balade au parc',  g: ['#2c5b3f', '#0d2217'] },
+  { id: 'nenhuma',    nome: 'Nenhuma das opções',  emoji: '✍️', fr: 'Je te laisse choisir', g: ['#4a3a2a', '#171009'] },
+];
+const grid = $('#places'), ok3 = $('#ok3');
+LOCAIS.forEach(l => {
+  const b = document.createElement('button');
+  b.className = 'place'; b.type = 'button'; b.setAttribute('aria-pressed', 'false'); b.dataset.id = l.id;
+  b.innerHTML = `<div class="pic" style="background-image:linear-gradient(145deg,${l.g[0]},${l.g[1]})"><span>${l.emoji}</span></div>
+    <div class="name">${l.nome}</div><div class="fr2">${l.fr}</div>`;
+  const img = new Image();
+  img.onload = () => { b.querySelector('.pic').style.backgroundImage = `url(${img.src})`; b.querySelector('.pic span').style.display = 'none'; };
+  img.src = `Imagens/${l.id}.jpg`;
+  b.onclick = () => select(l, b);
+  grid.append(b);
+});
+const modal = $('#modal'), sug = $('#suggestion');
+function select(l, el) {
+  grid.querySelectorAll('.place').forEach(p => p.setAttribute('aria-pressed', String(p === el)));
+  state.local = l.nome; state.sugestao = null;
+  ok3.disabled = false;
+  Log.info('Selecionou local', { local: l.nome });
+  if (l.id === 'nenhuma') { modal.classList.add('open'); sug.value = ''; setTimeout(() => sug.focus(), 50); }
+}
+$('#mCancel').onclick = () => { modal.classList.remove('open'); grid.querySelectorAll('.place').forEach(p => p.setAttribute('aria-pressed', 'false')); state.local = null; ok3.disabled = true; Log.warn('Cancelou a sugestão'); };
+$('#mOk').onclick = () => {
+  const v = sug.value.trim();
+  if (!v) { sug.focus(); return toast(); }
+  state.sugestao = v; modal.classList.remove('open');
+  Log.info('Digitou sugestão de local', { sugestao: v });
+};
+ok3.onclick = () => {
+  if (!state.local || (state.local === 'Nenhuma das opções' && !state.sugestao)) return toast();
+  Log.info('Confirmou local', { local: state.local, sugestao: state.sugestao });
+  go('s4');
+};
+
+/* ============ TELA 4: confirmação ============ */
+let tt;
+function toast(msg = 'SELECIONE UMA RESPOSTA VÁLIDA') {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 2600);
+}
+$('#no4').onclick = () => {
+  state.nosFinal = (state.nosFinal || 0) + 1;
+  Log.warn('Apertou "Não" na confirmação', { vezes: state.nosFinal });
+  toast(`SELECIONE UMA OPÇÃO SELECIONÁVEL, ${NOME_ELA.toUpperCase()}`);
+};
+$('#yes4').onclick = () => {
+  const resumo = {
+    para: NOME_ELA, de: NOME_ELE, dia: state.dia, horario: state.hora,
+    local: state.local, sugestao: state.sugestao, tentativasNaoNoConvite: state.tentativasNao,
+  };
+  Log.info('✔ DATE CONFIRMADO — resumo das escolhas', resumo);
+  const rows = [['Dia', state.dia], ['Horário', state.hora], ['Local', state.sugestao ? `${state.local}: “${state.sugestao}”` : state.local]];
+  $('#summary').innerHTML = rows.map(([k, v]) => `<div><b>${k}</b><span></span></div>`).join('');
+  $('#summary').querySelectorAll('span').forEach((s, i) => s.textContent = rows[i][1]);
+  go('s5'); confetti();
+};
+$('#dl').onclick = Log.download;
+document.addEventListener('keydown', e => { if (e.key === 'Escape') modal.classList.contains('open') && $('#mCancel').click(); });
+
+/* ============ MÚSICA (começa em 0:53, volume baixinho) ============ */
+(() => {
+  const START = 53, VOL = .5;
+  const au = $('#audio'), pp = $('#ppIcon'), hint = $('#hint'), player = $('#player');
+  const PLAY = 'M8 5v14l11-7z', PAUSE = 'M6 5h4v14H6zm8 0h4v14h-4z';
+  const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+  let started = false, fade;
+  au.volume = VOL;
+  const seekStart = () => { try { au.currentTime = START; } catch {} };
+  au.addEventListener('loadedmetadata', seekStart);
+  au.addEventListener('ended', () => { seekStart(); au.play().catch(() => {}); });
+  au.addEventListener('timeupdate', () => {
+    const d = au.duration || 0;
+    $('#pCur').textContent = fmt(au.currentTime);
+    $('#pLeft').textContent = d ? '–' + fmt(Math.max(d - au.currentTime, 0)) : '–';
+    $('#pBar').style.width = d ? (au.currentTime / d * 100) + '%' : '0';
+  });
+  au.addEventListener('play', () => pp.innerHTML = `<path d="${PAUSE}"/>`);
+  au.addEventListener('pause', () => pp.innerHTML = `<path d="${PLAY}"/>`);
+  au.addEventListener('error', () => { hint.classList.add('show'); Log.warn('Arquivo de música não encontrado'); });
+  const fadeIn = () => {
+    const target = +$('#pVol').value; let v = 0; clearInterval(fade); au.volume = 0;
+    fade = setInterval(() => { v = Math.min(v + target / 20, target); au.volume = v; if (v >= target) clearInterval(fade); }, 100);
+  };
+  let silent = false; /* tocando mudo, esperando o 1º toque para liberar o som */
+  const start = () => {
+    if (au.currentTime < START - 1) seekStart();
+    au.muted = false; au.volume = 0;
+    const p = au.play();
+    if (!p) return;
+    p.then(() => { started = true; silent = false; Log.info('Música iniciada em 0:53'); fadeIn(); })
+     .catch(() => {
+       /* o navegador barrou o som automático: já deixa rolando mudo e libera no 1º toque */
+       au.muted = true;
+       au.play().then(() => { silent = true; Log.info('Música rolando muda (aguardando 1º toque para liberar o som)'); }).catch(() => {});
+     });
+  };
+  const first = () => {
+    if (userPaused) return;
+    if (silent) { au.muted = false; silent = false; started = true; Log.info('Som liberado no 1º toque'); fadeIn(); }
+    else if (au.paused) start();
+    if (started) ['pointerdown', 'keydown', 'touchend'].forEach(e => removeEventListener(e, first));
+  };
+  let userPaused = false;
+  ['pointerdown', 'keydown', 'touchend'].forEach(e => addEventListener(e, first));
+  start();
+  $('#pp').onclick = ev => {
+    ev.stopPropagation();
+    if (au.paused) { userPaused = false; start(); } else { userPaused = true; au.pause(); Log.info('Música pausada'); }
+  };
+  $('#pBack').onclick = () => { seekStart(); if (au.paused) { userPaused = false; start(); } };
+  $('#pMute').onclick = () => { au.muted = !au.muted; };
+  $('#pVol').oninput = e => { au.volume = +e.target.value; };
+  /* no celular: toque inclina o player; toque fora volta ao normal */
+  player.addEventListener('touchstart', () => player.classList.add('touch'), { passive: true });
+  document.addEventListener('touchstart', e => { if (!player.contains(e.target)) player.classList.remove('touch'); }, { passive: true });
+})();
+
+/* ============ PÉTALAS DE FUNDO ============ */
+(() => {
+  const c = $('#petals'), x = c.getContext('2d');
+  let W, H, ps = [];
+  const size = () => { const d = devicePixelRatio || 1; W = c.width = innerWidth * d; H = c.height = innerHeight * d; x.setTransform(d, 0, 0, d, 0, 0); };
+  size(); addEventListener('resize', size);
+  if (matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+  const mk = () => ({ x: Math.random() * innerWidth, y: -20, s: 5 + Math.random() * 7, v: .25 + Math.random() * .6, r: Math.random() * 6, vr: (Math.random() - .5) * .02, d: Math.random() * 6, a: .15 + Math.random() * .3 });
+  for (let i = 0; i < 22; i++) { const p = mk(); p.y = Math.random() * innerHeight; ps.push(p); }
+  (function loop() {
+    x.clearRect(0, 0, innerWidth, innerHeight);
+    ps.forEach(p => {
+      p.y += p.v; p.d += .01; p.x += Math.sin(p.d) * .4; p.r += p.vr;
+      if (p.y > innerHeight + 20) Object.assign(p, mk());
+      x.save(); x.translate(p.x, p.y); x.rotate(p.r); x.globalAlpha = p.a; x.fillStyle = '#c2456b';
+      x.beginPath(); x.ellipse(0, 0, p.s, p.s * .55, 0, 0, 7); x.fill(); x.restore();
+    });
+    requestAnimationFrame(loop);
+  })();
+})();
+
+/* ============ CONFETE ============ */
+function confetti() {
+  const c = $('#confetti'), x = c.getContext('2d'), d = devicePixelRatio || 1;
+  c.width = innerWidth * d; c.height = innerHeight * d; x.setTransform(d, 0, 0, d, 0, 0);
+  const cores = ['#d9b27c', '#f0d3a5', '#c2456b', '#f6ece3', '#8e2a4a', '#ffd166'];
+  const burst = (ox, oy, n) => Array.from({ length: n }, () => {
+    const a = Math.random() * Math.PI * 2, v = 6 + Math.random() * 11;
+    return { x: ox, y: oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 6, w: 6 + Math.random() * 6, h: 3 + Math.random() * 5,
+      r: Math.random() * 6, vr: (Math.random() - .5) * .4, c: cores[Math.random() * cores.length | 0], life: 1 };
+  });
+  let ps = [...burst(innerWidth / 2, innerHeight * .55, 160), ...burst(innerWidth * .15, innerHeight * .8, 90), ...burst(innerWidth * .85, innerHeight * .8, 90)];
+  setTimeout(() => ps.push(...burst(innerWidth / 2, innerHeight * .35, 120)), 450);
+  (function loop() {
+    x.clearRect(0, 0, innerWidth, innerHeight);
+    ps = ps.filter(p => p.life > 0 && p.y < innerHeight + 30);
+    ps.forEach(p => {
+      p.vy += .28; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.r += p.vr; p.life -= .004;
+      x.save(); x.translate(p.x, p.y); x.rotate(p.r); x.globalAlpha = Math.max(p.life, 0); x.fillStyle = p.c; x.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); x.restore();
+    });
+    if (ps.length) requestAnimationFrame(loop); else x.clearRect(0, 0, innerWidth, innerHeight);
+  })();
+}
+})();
+</script>
+</body>
+</html>
+
+
+
